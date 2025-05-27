@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["-videoid", "1085780999"]
+            "args": ["-videoid", "1085780999", "-targetfolder", "transcriptions"]
         }
 
     ]

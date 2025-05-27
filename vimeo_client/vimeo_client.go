@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	model "vimeo-transcriber-model"
 )
 
@@ -70,4 +72,23 @@ func GetTextTracks(config *model.Config, videoId string) ([]string, error) {
 		}
 	}
 	return links, nil
+}
+
+func GetVttFile(url string, fileName string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("error getting vtt file: %w", err)
+	}
+	defer resp.Body.Close()
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading response body: %w", err)
+	}
+	// Create the directory if it doesn't exist
+	dir := filepath.Dir(fileName)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", fmt.Errorf("error creating directory: %w", err)
+	}
+	os.WriteFile(fileName, bodyBytes, 0644)
+	return fileName, nil
 }

@@ -23,10 +23,11 @@ You need to get this token from Vimeo.
 Example:
 
 ```
-vimeo-transcriber.exe -videoid 1085658122
+vimeo-transcriber.exe -videoid 1085658122 -targetfolder transcriptions
+vimeo-transcriber.exe -videoid 1085780999 -targetfolder transcriptions
 ```
 
-For now it only prints the text tracks if available:
+This will download the vtt files to the `transcriptions` folder.
 
 ```
 2025/05/19 19:19:37 Text track: https://captions.cloud.vimeo.com/captions/231961801.vtt?expires=1747685972&sig=72561a1b6f7a5f519312a4e79872fc6b102d0ef5&download=auto_generated_captions.vtt&hls=1
