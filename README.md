@@ -27,8 +27,14 @@ vimeo-transcriber.exe -videoid 1085658122 -targetfolder transcriptions
 vimeo-transcriber.exe -videoid 1085780999 -targetfolder transcriptions
 ```
 
-This will download the vtt files to the `transcriptions` folder.
+This will download the vtt files to the `transcriptions` folder in case there is one.
 
 ```
 2025/05/19 19:19:37 Text track: https://captions.cloud.vimeo.com/captions/231961801.vtt?expires=1747685972&sig=72561a1b6f7a5f519312a4e79872fc6b102d0ef5&download=auto_generated_captions.vtt&hls=1
+```
+
+If there is no text track, you will see a message like this one:
+
+```
+2025/05/27 09:42:19 No text tracks found for video 1085658122
 ```
