@@ -34,7 +34,6 @@ func executeRequest(config *model.Config, url string) (map[string]interface{}, e
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %w", err)
 	}
-	log.Printf("Response body: %s", string(bodyBytes))
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(bodyBytes, &result); err != nil {

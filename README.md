@@ -20,11 +20,12 @@ You need to get this token from Vimeo.
 
 ## Running
 
-Example:
+Examples:
 
 ```
-vimeo-transcriber.exe -videoid 1085658122 -targetfolder transcriptions
-vimeo-transcriber.exe -videoid 1085780999 -targetfolder transcriptions
+vimeo-transcriber.exe download -videoid 1085658122 -targetfolder transcriptions
+vimeo-transcriber.exe download -videoid 1085780999 -targetfolder transcriptions
+vimeo-transcriber.exe check -printuser
 ```
 
 This will download the vtt files to the `transcriptions` folder in case there is one.
