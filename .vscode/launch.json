@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Package - Download",
+            "name": "Launch Package - Download transcription",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["download", "-videoid", "1085780999", "-targetfolder", "transcriptions"]
+            "args": ["download", "-videoid", "468121987", "-targetfolder", "transcriptions"]
         },
         {
             "name": "Launch Package - Check",
@@ -19,7 +19,38 @@
             "mode": "auto",
             "program": "${workspaceFolder}",
             "args": ["check", "-printuser"]
+        },
+        {
+            "name": "Launch Package - Dump user",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["check"]
+        },
+        {
+            "name": "Launch Package - Dump video",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["dumpvideo", "-videoid", "468121987"]
+        },
+        {
+            "name": "Launch Package - Dump user videos",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["uservideos", "-userid", "user51871371"]
+        },
+        {
+            "name": "Launch Package - Dump user videos simple",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["uservideos", "-userid", "user51871371", "-simplevideolist"]
         }
-
     ]
 }

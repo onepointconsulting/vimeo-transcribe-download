@@ -34,6 +34,7 @@ func executeRequest(config *model.Config, url string) (map[string]interface{}, e
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %w", err)
 	}
+	// log.Println(string(bodyBytes))
 
 	var result map[string]interface{}
 	if err := json.Unmarshal(bodyBytes, &result); err != nil {
@@ -54,6 +55,14 @@ func GetUser(config *model.Config) (*model.User, error) {
 	}, nil
 }
 
+func DumpUser(config *model.Config) (string, error) {
+	result, err := executeRequest(config, "https://api.vimeo.com/me")
+	if err != nil {
+		return "", fmt.Errorf("error getting user: %w", err)
+	}
+	return dumpJson(result)
+}
+
 func GetTextTracks(config *model.Config, videoId string) ([]string, error) {
 	result, err := executeRequest(config, fmt.Sprintf("https://api.vimeo.com/videos/%s/texttracks", videoId))
 
@@ -71,6 +80,67 @@ func GetTextTracks(config *model.Config, videoId string) ([]string, error) {
 		}
 	}
 	return links, nil
+}
+
+func DumpVideo(config *model.Config, videoId string) (string, error) {
+	result, err := executeRequest(config, fmt.Sprintf("https://api.vimeo.com/videos/%s", videoId))
+	if err != nil {
+		return "", fmt.Errorf("error getting video: %w", err)
+	}
+	return dumpJson(result)
+}
+
+func DumpUserVideos(config *model.Config, userId string) (string, error) {
+	result, err := executeRequest(config, fmt.Sprintf("https://api.vimeo.com/users/%s/videos", userId))
+	if err != nil {
+		return "", fmt.Errorf("error getting user videos: %w", err)
+	}
+	return dumpJson(result)
+}
+
+func GetUserVideos(config *model.Config, userId string) ([]string, error) {
+	links := []string{}
+	url := fmt.Sprintf("https://api.vimeo.com/users/%s/videos", userId)
+
+	for {
+		result, err := executeRequest(config, url)
+		if err != nil {
+			return links, fmt.Errorf("error getting user videos: %w", err)
+		}
+		data, ok := result["data"].([]interface{})
+		if !ok {
+			return links, fmt.Errorf("unexpected response format: missing 'data'")
+		}
+		for _, video := range data {
+			if videoMap, ok := video.(map[string]interface{}); ok {
+				if videoId, ok := videoMap["link"].(string); ok {
+					links = append(links, videoId)
+				}
+			}
+		}
+		paging, ok := result["paging"].(map[string]interface{})
+		if !ok {
+			break // Assume no more pages if format is wrong
+		}
+		nextRaw, ok := paging["next"]
+		if !ok || nextRaw == nil {
+			break // No more pages
+		}
+		next, ok := nextRaw.(string)
+		if !ok || next == "" {
+			break
+		}
+		url = fmt.Sprintf("https://api.vimeo.com%s", next)
+	}
+	return links, nil
+}
+
+func dumpJson(result map[string]interface{}) (string, error) {
+	jsonBytes, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("error marshaling JSON: %w", err)
+	}
+	return string(jsonBytes), nil
 }
 
 func GetVttFile(url string, fileName string) (string, error) {
