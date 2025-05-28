@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 	model "vimeo-transcriber-model"
 )
 
@@ -27,7 +28,15 @@ func executeRequest(config *model.Config, url string) (map[string]interface{}, e
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		if resp.StatusCode == http.StatusTooManyRequests {
+			log.Printf("Too many requests. Sleeping for %d seconds.", config.RetryDelay)
+			time.Sleep(time.Duration(config.RetryDelay) * time.Second)
+			return executeRequest(config, url)
+		}
+		if resp.StatusCode == http.StatusNotFound {
+			return map[string]interface{}{"error": "not found"}, nil
+		}
+		return nil, fmt.Errorf("unexpected status code: %d for %s", resp.StatusCode, url)
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
@@ -67,7 +76,10 @@ func GetTextTracks(config *model.Config, videoId string) ([]string, error) {
 	result, err := executeRequest(config, fmt.Sprintf("https://api.vimeo.com/videos/%s/texttracks", videoId))
 
 	if err != nil {
-		return nil, fmt.Errorf("error getting user: %w", err)
+		return nil, fmt.Errorf("error getting text tracks: %w", err)
+	}
+	if result["error"] != nil {
+		return []string{}, nil
 	}
 	tracks := result["data"].([]interface{})
 	links := []string{}
@@ -88,6 +100,26 @@ func DumpVideo(config *model.Config, videoId string) (string, error) {
 		return "", fmt.Errorf("error getting video: %w", err)
 	}
 	return dumpJson(result)
+}
+
+func GetVideo(config *model.Config, videoId string) (*model.Video, error) {
+	result, err := executeRequest(config, fmt.Sprintf("https://api.vimeo.com/videos/%s", videoId))
+	if err != nil {
+		return nil, fmt.Errorf("error getting video: %w", err)
+	}
+	description := ""
+	if result["description"] != nil {
+		description = result["description"].(string)
+	}
+	name := "unknown"
+	if result["name"] != nil {
+		name = result["name"].(string)
+	}
+	return &model.Video{
+		ID:          videoId,
+		Title:       name,
+		Description: description,
+	}, nil
 }
 
 func DumpUserVideos(config *model.Config, userId string) (string, error) {
@@ -118,6 +150,7 @@ func GetUserVideos(config *model.Config, userId string) ([]string, error) {
 				}
 			}
 		}
+		log.Printf("Found %d videos.", len(links))
 		paging, ok := result["paging"].(map[string]interface{})
 		if !ok {
 			break // Assume no more pages if format is wrong

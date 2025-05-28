@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["download", "-videoid", "468121987", "-targetfolder", "transcriptions"]
+            "args": ["transcribe", "-videoid", "1085780999", "-targetfolder", "transcriptions"]
         },
         {
             "name": "Launch Package - Check",
@@ -51,6 +51,14 @@
             "mode": "auto",
             "program": "${workspaceFolder}",
             "args": ["uservideos", "-userid", "user51871371", "-simplevideolist"]
+        },
+        {
+            "name": "Launch Package - Extract user transcripts",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}",
+            "args": ["uservideos", "-userid", "user51871371", "-transcribeuser", "-targetfolder", "transcriptions"]
         }
     ]
 }
